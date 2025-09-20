@@ -19,31 +19,40 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: read
-      issues: read
+      contents: write
+      pull-requests: write
+      issues: write
       id-token: write
-      actions: read  # lets Claude read CI results on PRs
+      actions: read # Required for Claude to read CI results on PRs
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Run Claude Code (via Anthropic-compatible gateway)
+      - name: Run Claude Code
+        id: claude
         uses: anthropics/claude-code-action@v1
-        env:
-          # Point the CLI at your proxy/gateway
-          ANTHROPIC_BASE_URL: https://api.z.ai/api/anthropic
-          # Provide the token in the name the action expects
-          ANTHROPIC_API_KEY: ${{ secrets.GLM_API_KEY }}
         with:
-          # Do NOT set `anthropic_api_key:` input, we’re supplying it via env instead.
-          # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_api_key: ${{ secrets.GLM_API_KEY}}
 
-          # Let the action read CI results (optional but useful)
-          additional_permissions: |
-            actions: read
+          # Optional: Customize the trigger phrase (default: @claude)
+          # trigger_phrase: "/claude"
 
-          # If your proxy requires a specific model id, you can pass it here:
-          # claude_args: '--model glm-4'
+          # Optional: Trigger when specific user is assigned to an issue
+          # assignee_trigger: "claude-bot"
+
+          # Optional: Configure Claude's behavior with CLI arguments
+          # claude_args: |
+          #   --model claude-opus-4-1-20250805
+          #   --max-turns 10
+          #   --allowedTools "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
+          #   --system-prompt "Follow our coding standards. Ensure all new code has tests. Use TypeScript for new files."
+
+          # Optional: Advanced settings configuration
+          settings: |
+            {
+              "env": {
+                "anthropic_base_url": "https://api.z.ai/api/anthropic"
+              }
+            }
