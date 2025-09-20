@@ -32,18 +32,18 @@ jobs:
 
       - name: Run Claude Code (via Anthropic-compatible gateway)
         uses: anthropics/claude-code-action@v1
-        # Provide env vars (not inputs) so the CLI points at your proxy
         env:
+          # Point the CLI at your proxy/gateway
           ANTHROPIC_BASE_URL: https://api.z.ai/api/anthropic
-          ANTHROPIC_AUTH_TOKEN: ${{ secrets.GLM_API_KEY }}
+          # Provide the token in the name the action expects
+          ANTHROPIC_API_KEY: ${{ secrets.GLM_API_KEY }}
         with:
-          # DO NOT set `anthropic_api_key` if you want to use your proxy
+          # Do NOT set `anthropic_api_key:` input, we’re supplying it via env instead.
           # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 
-          # Allow Claude to read CI results on PRs (optional but useful)
+          # Let the action read CI results (optional but useful)
           additional_permissions: |
             actions: read
 
-          # (Optional) If your gateway needs a specific model id, pass it via claude_args.
-          # Otherwise omit this so the action's default model string is used (your proxy can rewrite it).
+          # If your proxy requires a specific model id, you can pass it here:
           # claude_args: '--model glm-4'
