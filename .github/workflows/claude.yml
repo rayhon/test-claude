@@ -1,3 +1,4 @@
+
 name: Claude Code
 
 on:
@@ -50,9 +51,18 @@ jobs:
           #   --system-prompt "Follow our coding standards. Ensure all new code has tests. Use TypeScript for new files."
 
           # Optional: Advanced settings configuration
+          # settings: |
+          #   {
+          #     "env": {
+          #       "NODE_ENV": "test"
+          #     }
+          #   }
+          # Write settings.json that Claude Code actually reads at runtime.
           settings: |
             {
               "env": {
-                "anthropic_base_url": "https://api.z.ai/api/anthropic"
+                "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
+                "ANTHROPIC_AUTH_TOKEN": "${{ secrets.GLM_API_KEY }}",
+                "DISABLE_AUTOUPDATER": "1"
               }
             }
