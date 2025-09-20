@@ -23,28 +23,27 @@ jobs:
       pull-requests: read
       issues: read
       id-token: write
-      actions: read # Required for Claude to read CI results on PRs
+      actions: read  # lets Claude read CI results on PRs
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Run Claude Code
-        id: claude
+      - name: Run Claude Code (via Anthropic-compatible gateway)
         uses: anthropics/claude-code-action@v1
+        # Provide env vars (not inputs) so the CLI points at your proxy
+        env:
+          ANTHROPIC_BASE_URL: https://api.z.ai/api/anthropic
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.GLM_API_KEY }}
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          
-          # This is an optional setting that allows Claude to read CI results on PRs
+          # DO NOT set `anthropic_api_key` if you want to use your proxy
+          # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+          # Allow Claude to read CI results on PRs (optional but useful)
           additional_permissions: |
             actions: read
 
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
-
-          # Optional: Add claude_args to customize behavior and configuration
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://docs.claude.com/en/docs/claude-code/sdk#command-line for available options
-          # claude_args: '--model claude-opus-4-1-20250805 --allowed-tools Bash(gh pr:*)'
-
+          # (Optional) If your gateway needs a specific model id, pass it via claude_args.
+          # Otherwise omit this so the action's default model string is used (your proxy can rewrite it).
+          # claude_args: '--model glm-4'
